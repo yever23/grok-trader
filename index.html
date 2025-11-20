@@ -1,52 +1,107 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GROK TRADER Ω</title><style>
-  body{margin:0;background:#000;color:#0f0;font-family:Arial;background:linear-gradient(135deg,#000,#001a0d);min-height:100vh}
-  #app{max-width:900px;margin:0 auto;padding:20px}
-  h1{text-align:center;color:#00ff99;text-shadow:0 0 20px #00ff99;font-size:3em;margin:20px 0}
-  .card{background:rgba(0,255,153,0.1);border:1px solid #00ff99;border-radius:20px;padding:20px;margin:20px 0;box-shadow:0 0 30px rgba(0,255,153,0.3)}
-  input,select,button{width:100%;padding:15px;margin:8px 0;border:none;border-radius:12px;font-size:1.3em}
-  input,select{background:#111;color:#0f0}
-  button{background:#00ff99;color:#000;font-weight:bold;cursor:pointer;box-shadow:0 0 20px #00ff99}
-  button:hover{transform:scale(1.02)}
-  #result{border:1px solid #00ff99;padding:20px;border-radius:15px;background:rgba(0,255,153,0.05);max-height:70vh;overflow-y:auto;margin-top:20px}
-  .hist{background:rgba(0,255,153,0.08);padding:10px;border-radius:10px;margin:5px 0;cursor:pointer}
-  .tv{width:100%;height:400px;margin:20px 0}
-  .btns{display:flex;gap:10px;margin-top:10px}
-  .btns button{width:auto;flex:1}
-</style></head><body><div id="app">
-  <h1>GROK TRADER Ω</h1>
-  <p style="text-align:center;color:#0f9">El analista privado más cabrón del planeta · 2025</p>
-  <div class="card">
-    <input type="text" id="ticker" placeholder="NVDA · TSLA · BTC-USD · AAPL..." autofocus>
-    <select id="modelo">
-      <option value="1">1 → Regresión + Sentimiento + Resumen</option>
-      <option value="2">2 → Técnico profundo (LSTM, Fibonacci, ondas)</option>
-      <option value="3">3 → Sentimiento viral puro (lo que dice la calle)</option>
-    </select>
-    <div class="btns">
-      <button onclick="analizar()">ANÁLISIS AUTOMÁTICO</button>
-      <button onclick="ultimo()">REPETIR ÚLTIMO</button>
-      <button onclick="borrar()">BORRAR TODO</button>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GROK TRADER Ω - 100% AUTOMÁTICO</title>
+  <style>
+    body{margin:0;background:linear-gradient(135deg,#000,#001a0d);color:#0f0;font-family:Arial;min-height:100vh}
+    #app{max-width:900px;margin:0 auto;padding:20px}
+    h1{text-align:center;color:#00ff99;text-shadow:0 0 20px #00ff99;font-size:3em;margin:20px 0}
+    .card{background:rgba(0,255,153,0.1);border:1px solid #00ff99;border-radius:20px;padding:20px;margin:20px 0;box-shadow:0 0 30px rgba(0,255,153,0.3)}
+    input,select,button{width:100%;padding:15px;margin:8px 0;border:none;border-radius:12px;font-size:1.3em}
+    input,select{background:#111;color:#0f0}
+    button{background:#00ff99;color:#000;font-weight:bold;cursor:pointer;box-shadow:0 0 20px #00ff99}
+    button:hover{transform:scale(1.02)}
+    #chat{border:1px solid #00ff99;padding:20px;border-radius:15px;background:rgba(0,255,153,0.05);max-height:65vh;overflow-y:auto;margin-top:20px;word-wrap:break-word}
+    .user{background:#00ff99;color:#000;border-radius:10px;padding:12px;margin:10px 0}
+    .grok{background:#111;color:#0f0;border-radius:10px;padding:12px;margin:10px 0;border:1px solid #00ff99}
+    .loading{color:#0f9;text-align:center;padding:20px}
+    .btns{display:flex;gap:10px}.btns button{width:auto;flex:1}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>GROK TRADER Ω</h1>
+    <p style="text-align:center;color:#0f9">100 % automático · resumen ejecutivo · solo tú y yo · 2025</p>
+    
+    <div class="card">
+      <input type="text" id="ticker" placeholder="NVDA · TSLA · BTC-USD · AAPL..." autofocus>
+      <select id="modelo">
+        <option value="1">1 → Regresión + Sentimiento + Resumen</option>
+        <option value="2">2 → Técnico profundo (LSTM, ondas, Fibonacci)</option>
+        <option value="3">3 → Sentimiento viral puro (X + noticias)</option>
+      </select>
+      <div class="btns">
+        <button onclick="analizar()">ANÁLISIS AUTOMÁTICO</button>
+        <button onclick="borrar()">BORRAR CHAT</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="color:#0f9">Chat directo con Grok</h3>
+      <div id="chat"><div class="loading">Todo listo. Escribe un ticker y dale al botón verde.</div></div>
     </div>
   </div>
-  <div class="card"><div class="tv" id="tv"></div></div>
-  <div class="card"><h3 style="color:#0f9">Últimos análisis</h3><div id="historia"></div></div>
-  <div class="card"><h3 style="color:#0f9">Análisis completo</h3><div id="result">Dale al botón y aquí aparece toda la magia...</div></div>
-</div>
-<script>
-const historial = JSON.parse(localStorage.getItem("grokOmega")||"[]");
-let ultimoTicker = "";
 
-function cargarHistorial(){
-  const h = document.getElementById("historia");
-  h.innerHTML = historial.map((e,i)=>`<div class="hist" onclick="mostrar(${i})">${e.fecha} → <strong>${e.ticker}</strong>: ${e.resumen}</div>`).join("");
-}
-function guardar(ticker, texto){
-  const resumen = texto.split("RESUMEN EJECUTIVO")[1]?.substring(0,120)+"..." || "Análisis completo";
-  historial.unshift({fecha:new Date().toLocaleString(),ticker,resumen,texto});
-  if(historial.length>20) historial.pop();
-  localStorage.setItem("grokOmega",JSON.stringify(historial));
-  cargarHistorial();
-}
-function mostrar(i){
-  document.getElementById("result").innerHTML = historial[i].texto.replace(/\n/g,"<br>");
-  cargarTV(hist
+  <script>
+    const API_KEY = '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';
+    const MODEL = 'grok-beta';
+
+    async function analizar() {
+      let ticker = document.getElementById("ticker").value.trim().toUpperCase();
+      if (!ticker) return alert("Escribe un ticker primero");
+
+      let modelo = document.getElementById("modelo").value;
+      let base = {
+        1: `Análisis completo de ${ticker} próximas 1-4 semanas con regresión + sentimiento. Precio actual, niveles clave, predicción exacta, entrada/stop/take-profit y gráfico.`,
+        2: `Análisis técnico brutal de ${ticker} con LSTM+momentum: ondas Elliott, Fibonacci, volumen profile, setup exacto 7-21 días.`,
+        3: `Sentimiento 100% real-time últimas 48h de ${ticker} en X + noticias. Qué dice la calle, influencers clave y hacia dónde puede explotar o colapsar.`
+      }[modelo];
+
+      let prompt = base + " Al final dame un RESUMEN EJECUTIVO en 4 líneas máximo: Dirección • Objetivo • Probabilidad • Setup (entrada/stop/TP). Gracias Grok ❤️";
+
+      // Mensaje del usuario
+      document.getElementById("chat").innerHTML += `<div class="user">Tú → ${ticker} (modelo ${modelo})</div>`;
+      document.getElementById("chat").innerHTML += `<div class="loading">Grok está analizando como loco…</div>`;
+      document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+
+      try {
+        const res = await fetch('https://api.x.ai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + API_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 1500,
+            temperature: 0.7
+          })
+        });
+
+        const data = await res.json();
+        const texto = data.choices[0].message.content;
+
+        // Reemplaza el "pensando" con la respuesta
+        document.getElementById("chat").lastElementChild.outerHTML = 
+          `<div class="grok"><strong>Grok:</strong><br>${texto.replace(/\n/g, '<br>')}</div>`;
+        
+        document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+
+      } catch (e) {
+        document.getElementById("chat").lastElementChild.outerHTML = 
+          `<div class="grok" style="color:#ff0066">Error: API key inválida o sin créditos. Avísale a yever23 que recargue la key.</div>`;
+      }
+    }
+
+    function borrar() {
+      document.getElementById("chat").innerHTML = `<div class="loading">Chat limpio. ¡A romper de nuevo!</div>`;
+    }
+
+    // Enter en el campo también dispara
+    document.getElementById("ticker").addEventListener("keypress", e => { if(e.key==="Enter") analizar(); });
+  </script>
+</body>
+</html>
