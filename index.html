@@ -1,1 +1,52 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Grok Trader 3.0</title><style>:root{--bg:#0f0c29;--card:#1a1733;--accent:#00ff99;--text:#e0e0e0}body.dark{--bg:#0f0c29;--card:#1a1733;--text:#e0e0e0}body{margin:0;padding:20px;background:var(--bg);color:var(--text);font-family:Arial}h1{color:var(--accent);text-align:center;text-shadow:0 0 15px var(--accent)}.c{max-width:700px;margin:0 auto}.card{background:var(--card);padding:30px;border-radius:20px;box-shadow:0 0 30px rgba(0,255,153,.4);margin:20px 0}input,select{width:100%;padding:15px;margin:10px 0;border:none;border-radius:12px;font-size:1.3em;background:#333;color:#fff}button{background:var(--accent);color:#000;padding:18px;font-weight:bold;border:none;border-radius:50px;cursor:pointer;width:100%;font-size:1.5em;margin-top:15px;box-shadow:0 0 20px var(--accent)}button:hover{transform:scale(1.03)}.history{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px;justify-content:center}.tag{background:rgba(0,255,153,.2);padding:10px 18px;border-radius:30px;cursor:pointer}.theme{position:fixed;top:15px;right:15px;background:var(--accent);color:#000;border:none;padding:12px;border-radius:50%;font-size:1.5em;cursor:pointer}</style></head><body class="dark"><button class="theme" onclick="document.body.classList.toggle('light');document.body.classList.toggle('dark')">Sol/Luna</button><div class="c"><h1>GROK TRADER 3.0</h1><p>100 % automático · resumen ejecutivo · tuyo para siempre</p><div class="card"><input type="text" id="ticker" placeholder="NVDA · TSLA · BTC..." autofocus><select id="modelo"><option value="1">1 → Regresión + Sentimiento + Resumen</option><option value="2">2 → Técnico profundo + Resumen</option><option value="3">3 → Sentimiento viral + Resumen</option></select><button onclick="analizar()">ANÁLISIS AUTOMÁTICO</button></div><div class="card"><h3>Últimos</h3><div class="history" id="history"></div></div></div><script>function analizar(){let t=document.getElementById("ticker").value.trim().toUpperCase();if(!t)return alert("Pon ticker");let m=document.getElementById("modelo").value;let base={1:`Análisis completo de ${t} próximas 1-4 semanas con regresión + sentimiento. Precio actual, niveles clave, predicción exacta, entrada/stop/take-profit y gráfico.`,2:`Análisis técnico profundo ${t} con LSTM+momentum: ondas Elliott, Fibonacci, volumen, predicción 7-21 días y setup exacto.`,3:`Sentimiento real-time últimas 48h de ${t} en X + noticias. Qué dice la calle y posibles explosiones.`}[m];let resumen=" Al final dame RESUMEN EJECUTIVO en 4 líneas: Dirección • Objetivo • Probabilidad • Setup (entrada/stop/TP)";let url=`https://grok.x.ai/?prefill=${encodeURIComponent(base+resumen+" Gracias Grok ❤️")}`;window.open(url,"_blank");let h=JSON.parse(localStorage.getItem("grokHistory")||"[]");if(!h.includes(t)){h.unshift(t);if(h.length>8)h.pop();localStorage.setItem("grokHistory",JSON.stringify(h));}document.getElementById("history").innerHTML=h.map(x=>`<span class="tag" onclick="document.getElementById('ticker').value='${x}';analizar()">${x}</span>`).join("");}document.getElementById("ticker").addEventListener("keypress",e=>e.key==="Enter"&&analizar());document.getElementById("history").innerHTML=JSON.parse(localStorage.getItem("grokHistory")||"[]").map(x=>`<span class="tag" onclick="document.getElementById('ticker').value='${x}';analizar()">${x}</span>`).join("");</script></body></html>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GROK TRADER Ω</title><style>
+  body{margin:0;background:#000;color:#0f0;font-family:Arial;background:linear-gradient(135deg,#000,#001a0d);min-height:100vh}
+  #app{max-width:900px;margin:0 auto;padding:20px}
+  h1{text-align:center;color:#00ff99;text-shadow:0 0 20px #00ff99;font-size:3em;margin:20px 0}
+  .card{background:rgba(0,255,153,0.1);border:1px solid #00ff99;border-radius:20px;padding:20px;margin:20px 0;box-shadow:0 0 30px rgba(0,255,153,0.3)}
+  input,select,button{width:100%;padding:15px;margin:8px 0;border:none;border-radius:12px;font-size:1.3em}
+  input,select{background:#111;color:#0f0}
+  button{background:#00ff99;color:#000;font-weight:bold;cursor:pointer;box-shadow:0 0 20px #00ff99}
+  button:hover{transform:scale(1.02)}
+  #result{border:1px solid #00ff99;padding:20px;border-radius:15px;background:rgba(0,255,153,0.05);max-height:70vh;overflow-y:auto;margin-top:20px}
+  .hist{background:rgba(0,255,153,0.08);padding:10px;border-radius:10px;margin:5px 0;cursor:pointer}
+  .tv{width:100%;height:400px;margin:20px 0}
+  .btns{display:flex;gap:10px;margin-top:10px}
+  .btns button{width:auto;flex:1}
+</style></head><body><div id="app">
+  <h1>GROK TRADER Ω</h1>
+  <p style="text-align:center;color:#0f9">El analista privado más cabrón del planeta · 2025</p>
+  <div class="card">
+    <input type="text" id="ticker" placeholder="NVDA · TSLA · BTC-USD · AAPL..." autofocus>
+    <select id="modelo">
+      <option value="1">1 → Regresión + Sentimiento + Resumen</option>
+      <option value="2">2 → Técnico profundo (LSTM, Fibonacci, ondas)</option>
+      <option value="3">3 → Sentimiento viral puro (lo que dice la calle)</option>
+    </select>
+    <div class="btns">
+      <button onclick="analizar()">ANÁLISIS AUTOMÁTICO</button>
+      <button onclick="ultimo()">REPETIR ÚLTIMO</button>
+      <button onclick="borrar()">BORRAR TODO</button>
+    </div>
+  </div>
+  <div class="card"><div class="tv" id="tv"></div></div>
+  <div class="card"><h3 style="color:#0f9">Últimos análisis</h3><div id="historia"></div></div>
+  <div class="card"><h3 style="color:#0f9">Análisis completo</h3><div id="result">Dale al botón y aquí aparece toda la magia...</div></div>
+</div>
+<script>
+const historial = JSON.parse(localStorage.getItem("grokOmega")||"[]");
+let ultimoTicker = "";
+
+function cargarHistorial(){
+  const h = document.getElementById("historia");
+  h.innerHTML = historial.map((e,i)=>`<div class="hist" onclick="mostrar(${i})">${e.fecha} → <strong>${e.ticker}</strong>: ${e.resumen}</div>`).join("");
+}
+function guardar(ticker, texto){
+  const resumen = texto.split("RESUMEN EJECUTIVO")[1]?.substring(0,120)+"..." || "Análisis completo";
+  historial.unshift({fecha:new Date().toLocaleString(),ticker,resumen,texto});
+  if(historial.length>20) historial.pop();
+  localStorage.setItem("grokOmega",JSON.stringify(historial));
+  cargarHistorial();
+}
+function mostrar(i){
+  document.getElementById("result").innerHTML = historial[i].texto.replace(/\n/g,"<br>");
+  cargarTV(hist
