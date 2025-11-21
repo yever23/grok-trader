@@ -15,17 +15,18 @@
     button:hover{transform:scale(1.02)}
     #promptBox{background:#111;color:#0f0;padding:20px;border-radius:12px;margin:20px 0;font-size:1.3em;height:220px;overflow-y:auto;border:2px solid #00ff99;white-space:pre-wrap}
     .bigbtn{font-size:2em !important;padding:30px !important;margin-top:20px}
+    .linkbtn{background:#00ff37;color:#000;text-decoration:none;display:block;text-align:center;border-radius:20px}
   </style>
 </head>
 <body>
   <div id="app">
     <h1>GROK TRADER Ω</h1>
-    <p style="text-align:center;color:#0f9;font-size:1.5em">Prompt listo → copiar → pegar en grok.x.ai</p>
+    <p style="text-align:center;color:#0f9;font-size:1.5em">Prompt listo → copiar → abrir → pegar</p>
     
     <div class="card">
       <input type="text" id="ticker" placeholder="NVDA · TSLA · BTC-USD..." autofocus>
       <select id="modelo">
-        <option value="1">1 → Regresión + Sentimiento + Resumen (recomendado)</option>
+        <option value="1">1 → Regresión + Sentimiento + Resumen</option>
         <option value="2">2 → Técnico profundo</option>
         <option value="3">3 → Sentimiento viral</option>
       </select>
@@ -34,9 +35,12 @@
 
     <div class="card">
       <div id="promptBox">Escribe un ticker y dale al botón verde ↑<br>Aquí aparecerá el prompt perfecto.</div>
-      <button class="bigbtn" onclick="copiarYabrir()" style="background:#00ff37">
-        COPIAR + ABRIR GROK.X.AI
-      </button>
+      
+      <button class="bigbtn" onclick="copiar()">COPIAR PROMPT</button>
+      
+      <a href="https://grok.x.ai" target="_blank" class="bigbtn linkbtn">
+        ABRIR GROK.X.AI AHORA
+      </a>
     </div>
   </div>
 
@@ -56,20 +60,14 @@
       document.getElementById("promptBox").textContent = prompt;
     }
 
-    function copiarYabrir() {
+    function copiar() {
       let texto = document.getElementById("promptBox").textContent;
       if (texto.includes("Escribe un ticker")) return alert("Primero genera el prompt");
-
-      // Copia al portapapeles
-      navigator.clipboard.writeText(texto).then(() => {
-        // Abre grok.x.ai SIN que lo bloquee el navegador
-        const win = window.open("https://grok.x.ai", "_blank");
-        if (!win) alert("Permite pop-ups en este sitio y vuelve a intentarlo");
-        else setTimeout(() => alert("¡Prompt copiado! Pega con Ctrl+V en la pestaña que se abrió"), 500);
-      });
+      
+      navigator.clipboard.writeText(texto);
+      alert("¡PROMPT COPIADO! Ahora dale al botón verde de abajo para abrir Grok y pega con Ctrl+V");
     }
 
-    // Enter genera el prompt
     document.getElementById("ticker").addEventListener("keypress", e => {
       if (e.key === "Enter") generar();
     });
