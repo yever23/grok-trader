@@ -3,43 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GROK TRADER Ω</title>
+  <title>GROK TRADER Ω + GRÁFICAS</title>
   <style>
     body{margin:0;background:#000;color:#0f0;font-family:Arial}
-    #app{max-width:800px;margin:0 auto;padding:20px}
+    #app{max-width:900px;margin:0 auto;padding:20px}
     h1{text-align:center;color:#00ff99;text-shadow:0 0 20px #00ff99;font-size:3em}
     .card{background:rgba(0,255,153,0.1);border:1px solid #00ff99;border-radius:20px;padding:25px;margin:20px 0;box-shadow:0 0 30px rgba(0,255,153,0.3)}
     input,select,button{width:100%;padding:18px;margin:10px 0;border:none;border-radius:12px;font-size:1.4em}
     input,select{background:#111;color:#0f0}
     button{background:#00ff99;color:#000;font-weight:bold;cursor:pointer}
     button:hover{transform:scale(1.02)}
+    #chart{height:450px;margin:20px 0;border:1px solid #00ff99;border-radius:15px;overflow:hidden}
   </style>
 </head>
 <body>
   <div id="app">
     <h1>GROK TRADER Ω</h1>
-    <p style="text-align:center;color:#0f9;font-size:1.5em">1 clic → análisis completo con resumen ejecutivo</p>
+    <p style="text-align:center;color:#0f9;font-size:1.5em">Gráfica en vivo + análisis automático con resumen</p>
     
     <div class="card">
-      <input type="text" id="ticker" placeholder="NVDA · TSLA · BTC-USD · AAPL..." autofocus>
+      <input type="text" id="ticker" placeholder="NVDA · TSLA · BTC-USD · AAPL..." autofocus onchange="cargarGrafica()">
       <select id="modelo">
         <option value="1">1 → Regresión + Sentimiento + Resumen</option>
-        <option value="2">2 → Técnico profundo (LSTM, ondas, Fibonacci)</option>
-        <option value="3">3 → Sentimiento viral puro (X + noticias)</option>
+        <option value="2">2 → Técnico profundo</option>
+        <option value="3">3 → Sentimiento viral</option>
       </select>
       <button onclick="analizar()" style="font-size:1.8em;padding:25px">ANÁLISIS AUTOMÁTICO</button>
     </div>
-    
-    <div class="card" style="text-align:center;color:#0f9">
-      <strong>Funciona así:</strong><br>
-      Das clic → Grok se abre con todo escrito → solo das Enter y listo.
+
+    <!-- GRÁFICA EN VIVO -->
+    <div class="card">
+      <div id="chart">
+        <iframe src="https://www.tradingview.com/chart/?symbol=NVDA&theme=dark" width="100%" height="100%" frameborder="0"></iframe>
+      </div>
     </div>
   </div>
 
   <script>
+    // Carga gráfica cuando cambias el ticker
+    function cargarGrafica() {
+      let t = document.getElementById("ticker").value.trim().toUpperCase();
+      if (!t) t = "NVDA";
+      const symbol = t.replace(/-/g, ""); // Quita guiones para BTC-USD → BTCUSD
+      document.querySelector("#chart iframe").src = 
+        `https://www.tradingview.com/chart/?symbol=${symbol}&theme=dark&interval=D`;
+    }
+
     function analizar() {
       let t = document.getElementById("ticker").value.trim().toUpperCase();
       if (!t) return alert("Escribe un ticker");
+      cargarGrafica(); // actualiza gráfica también al dar clic
       let m = document.getElementById("modelo").value;
       let base = {
         1: `Análisis completo de ${t} próximas 1-4 semanas con regresión + sentimiento. Precio actual, niveles clave, predicción exacta, entrada/stop/take-profit y gráfico.`,
@@ -49,7 +62,14 @@
       let prompt = base + " Al final dame un RESUMEN EJECUTIVO en 4 líneas máximo: Dirección • Objetivo • Probabilidad • Setup (entrada/stop/TP). Gracias Grok ❤️";
       window.open(`https://grok.x.ai/?prefill=${encodeURIComponent(prompt)}`, "_blank");
     }
-    document.getElementById("ticker").addEventListener("keypress", e => e.key==="Enter" && analizar());
+
+    // Enter también funciona
+    document.getElementById("ticker").addEventListener("keypress", e => {
+      if (e.key === "Enter") { cargarGrafica(); analizar(); }
+    });
+
+    // Carga NVDA por defecto al abrir
+    window.onload = cargarGrafica;
   </script>
 </body>
 </html>
