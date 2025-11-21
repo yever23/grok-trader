@@ -13,35 +13,37 @@
     input,select{background:#111;color:#0f0}
     button{background:#00ff99;color:#000;font-weight:bold;cursor:pointer}
     button:hover{transform:scale(1.02)}
-    #promptBox{background:#111;color:#0f0;padding:20px;border-radius:12px;margin:20px 0;font-size:1.3em;height:200px;overflow-y:auto;border:2px solid #00ff99;white-space:pre-wrap}
+    #promptBox{background:#111;color:#0f0;padding:20px;border-radius:12px;margin:20px 0;font-size:1.3em;height:220px;overflow-y:auto;border:2px solid #00ff99;white-space:pre-wrap}
     .bigbtn{font-size:2em !important;padding:30px !important;margin-top:20px}
   </style>
 </head>
 <body>
   <div id="app">
     <h1>GROK TRADER Ω</h1>
-    <p style="text-align:center;color:#0f9;font-size:1.5em">Prompt listo para copiar → pegar en grok.x.ai</p>
+    <p style="text-align:center;color:#0f9;font-size:1.5em">Prompt listo → copiar → pegar en grok.x.ai</p>
     
     <div class="card">
       <input type="text" id="ticker" placeholder="NVDA · TSLA · BTC-USD..." autofocus>
       <select id="modelo">
-        <option value="1">1 → Regresión + Sentimiento + Resumen (el más chingón)</option>
+        <option value="1">1 → Regresión + Sentimiento + Resumen (recomendado)</option>
         <option value="2">2 → Técnico profundo</option>
         <option value="3">3 → Sentimiento viral</option>
       </select>
-      <button class="bigbtn" onclick="generar()">GENERAR PROMPT AUTOMÁTICO</button>
+      <button class="bigbtn" onclick="generar()">GENERAR PROMPT</button>
     </div>
 
     <div class="card">
-      <div id="promptBox">Escribe un ticker y dale al botón verde ↑<br>El prompt perfecto aparecerá aquí listo para copiar.</div>
-      <button class="bigbtn" onclick="copiarYabrir()" style="background:#00ff37">COPIAR Y ABRIR GROK.X.AI</button>
+      <div id="promptBox">Escribe un ticker y dale al botón verde ↑<br>Aquí aparecerá el prompt perfecto.</div>
+      <button class="bigbtn" onclick="copiarYabrir()" style="background:#00ff37">
+        COPIAR + ABRIR GROK.X.AI
+      </button>
     </div>
   </div>
 
   <script>
     function generar() {
       let t = document.getElementById("ticker").value.trim().toUpperCase();
-      if (!t) return alert("¡Pon un ticker, cabrón!");
+      if (!t) return alert("¡Pon un ticker!");
       
       let base = {
         1: `Análisis completo de ${t} próximas 1-4 semanas con regresión + sentimiento. Precio actual, niveles clave, predicción exacta, entrada/stop/take-profit y gráfico.`,
@@ -57,13 +59,17 @@
     function copiarYabrir() {
       let texto = document.getElementById("promptBox").textContent;
       if (texto.includes("Escribe un ticker")) return alert("Primero genera el prompt");
-      
-      navigator.clipboard.writeText(texto);
-      window.open("https://grok.x.ai", "_blank");
-      alert("¡Prompt copiado! Pégalo en la pestaña que se abrió y dale Enter");
+
+      // Copia al portapapeles
+      navigator.clipboard.writeText(texto).then(() => {
+        // Abre grok.x.ai SIN que lo bloquee el navegador
+        const win = window.open("https://grok.x.ai", "_blank");
+        if (!win) alert("Permite pop-ups en este sitio y vuelve a intentarlo");
+        else setTimeout(() => alert("¡Prompt copiado! Pega con Ctrl+V en la pestaña que se abrió"), 500);
+      });
     }
 
-    // Enter también genera
+    // Enter genera el prompt
     document.getElementById("ticker").addEventListener("keypress", e => {
       if (e.key === "Enter") generar();
     });
